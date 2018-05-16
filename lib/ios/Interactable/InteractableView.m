@@ -279,7 +279,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
                 {
                     if (![self.insideAlertAreas containsObject:area.id])
                     {
-                        [alert setObject:@"enter" forKey:area.id];
+                        [alert setObject:@"enter" forKey:@"state"];
+                        [alert setObject:area.id forKey:@"id"];
                         [self.insideAlertAreas addObject:area.id];
                     }
                 }
@@ -287,7 +288,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
                 {
                     if ([self.insideAlertAreas containsObject:area.id])
                     {
-                        [alert setObject:@"leave" forKey:area.id];
+                        [alert setObject:@"leave" forKey:@"state"];
+                        [alert setObject:area.id forKey:@"id"];
                         [self.insideAlertAreas removeObject:area.id];
                     }
                 }
@@ -318,19 +320,18 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     if (self.gestureRecognizerAdded == NO) {
         rctScrollView.scrollView.delegate = self;
         rctScrollView.scrollView.scrollEnabled = NO;
-        [rctScrollView.scrollView.panGestureRecognizer addTarget:self action:@selector(extraPan:)];
+        [rctScrollView.scrollView.panGestureRecognizer addTarget:self action:@selector(handleScrollViewPan:)];
         self.gestureRecognizerAdded = YES;
     }
 
     return rctScrollView.scrollView;
 }
 
-//TODO:// @Farid please rename it to HandleScrollViewPan
-- (void)extraPan:(UIPanGestureRecognizer *)pan {
+- (void)handleScrollViewPan:(UIPanGestureRecognizer *)pan {
     if (self.hostedScrollView.contentOffset.y == 0 && !self.isScrollViewSnapDismissing) {
         [self handlePan:pan];
     } else {
-        _prepareScrollViewGesture = true;
+        _prepareScrollViewGesture = YES;
     }
 }
 
@@ -371,7 +372,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 // TODO:// @Farid most likely wix implementation is enough so please revert
 - (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)pan
 {
-    if (self.hostedScrollView.scrollEnabled == false){
+    if (self.hostedScrollView.scrollEnabled == NO){
         CGPoint translation = [pan translationInView:self];
         if (self.horizontalOnly) return fabs(translation.x) > fabs(translation.y);
         if (self.verticalOnly) return fabs(translation.y) > fabs(translation.x);
@@ -638,6 +639,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
         [self addTempBounceBehaviorWithBoundaries:self.boundaries];
         [self.animator ensureRunning];
+        self.hostedScrollView.scrollEnabled = snapPoint.y == 0;
     }
 }
 
