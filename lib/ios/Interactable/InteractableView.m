@@ -103,7 +103,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 @property (nonatomic, assign) NSString* lastEmittedEventName;
 
 // GETAWAY - Card Magic
-@property (nonatomic, weak, readonly) UIScrollView *hostedScrollView;
+@property (nonatomic, weak) UIScrollView *hostedScrollView;
 @property (nonatomic, assign) BOOL gestureRecognizerAdded;
 @property (nonatomic, assign) BOOL prepareScrollViewGesture;
 @property (nonatomic, assign) BOOL isScrollViewSnapDismissing;
@@ -131,6 +131,19 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         self.gestureRecognizerAdded = NO;
     }
     return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    UIView *contentView = [self.bridge.uiManager viewForNativeID:@"CardSrollableContent" withRootTag:self.reactTag];
+    RCTScrollView *rctScrollView = (RCTScrollView *)contentView;
+    if (self.hostedScrollView != rctScrollView.scrollView) {
+        [self.hostedScrollView.panGestureRecognizer removeTarget:self action:@selector(handleScrollViewPan:)];
+        rctScrollView.scrollView.delegate = self;
+        rctScrollView.scrollView.scrollEnabled = NO;
+        [rctScrollView.scrollView.panGestureRecognizer addTarget:self action:@selector(handleScrollViewPan:)];
+        self.hostedScrollView = rctScrollView.scrollView;
+    }
 }
 
 - (void)reactSetFrame:(CGRect)frame
@@ -311,20 +324,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
                         @"targetSnapPointId":targetSnapPointId
                       });
     }
-}
-// TODO:// @Farid Find a better way to keep reference to the CardScrollView because we're using the bridge here
-- (UIScrollView *)hostedScrollView {
-    UIView *contentView = [self.bridge.uiManager viewForNativeID:@"CardSrollableContent" withRootTag:self.reactTag];
-
-    RCTScrollView *rctScrollView = (RCTScrollView *)contentView;
-    if (self.gestureRecognizerAdded == NO) {
-        rctScrollView.scrollView.delegate = self;
-        rctScrollView.scrollView.scrollEnabled = NO;
-        [rctScrollView.scrollView.panGestureRecognizer addTarget:self action:@selector(handleScrollViewPan:)];
-        self.gestureRecognizerAdded = YES;
-    }
-
-    return rctScrollView.scrollView;
 }
 
 - (void)handleScrollViewPan:(UIPanGestureRecognizer *)pan {
