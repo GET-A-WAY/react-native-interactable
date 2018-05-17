@@ -23,6 +23,6 @@ public class Interactable implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        return Collections.<ViewManager>singletonList(new InteractableViewManager());
+        return Collections.<ViewManager>singletonList(new InteractableViewManager(), new InteractableCardViewManager());
     }
 }
