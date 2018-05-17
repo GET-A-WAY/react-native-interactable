@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		412857F920ADD1B700B5F79D /* InteractableCardViewManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 417741EE20ADBB2C00EB2995 /* InteractableCardViewManager.h */; };
 		417741F020ADBB2C00EB2995 /* InteractableCardViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 417741EF20ADBB2C00EB2995 /* InteractableCardViewManager.m */; };
 		417741F320ADBBD300EB2995 /* InteractableCardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 417741F220ADBBD300EB2995 /* InteractableCardView.m */; };
 		CC01279C1E3ACC3900B23C9F /* InteractableViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CC01279B1E3ACC3900B23C9F /* InteractableViewManager.m */; };
@@ -34,6 +35,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				412857F920ADD1B700B5F79D /* InteractableCardViewManager.h in CopyFiles */,
 				CC01279D1E3ACC3900B23C9F /* InteractableViewManager.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
