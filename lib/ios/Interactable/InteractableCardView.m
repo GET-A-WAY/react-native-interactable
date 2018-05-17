@@ -676,3 +676,5 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     _isScrollViewSnapDismissing = NO;
 }
 
+@end
+
