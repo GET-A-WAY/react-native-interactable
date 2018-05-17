@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		417741F020ADBB2C00EB2995 /* InteractableCardViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 417741EF20ADBB2C00EB2995 /* InteractableCardViewManager.m */; };
+		417741F320ADBBD300EB2995 /* InteractableCardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 417741F220ADBBD300EB2995 /* InteractableCardView.m */; };
 		CC01279C1E3ACC3900B23C9F /* InteractableViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CC01279B1E3ACC3900B23C9F /* InteractableViewManager.m */; };
 		CC01279D1E3ACC3900B23C9F /* InteractableViewManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC01279A1E3ACC3900B23C9F /* InteractableViewManager.h */; };
 		CC0127DC1E3AD42C00B23C9F /* InteractableView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC0127DB1E3AD42C00B23C9F /* InteractableView.m */; };
@@ -39,6 +41,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		417741EE20ADBB2C00EB2995 /* InteractableCardViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InteractableCardViewManager.h; sourceTree = "<group>"; };
+		417741EF20ADBB2C00EB2995 /* InteractableCardViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InteractableCardViewManager.m; sourceTree = "<group>"; };
+		417741F120ADBBD300EB2995 /* InteractableCardView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InteractableCardView.h; sourceTree = "<group>"; };
+		417741F220ADBBD300EB2995 /* InteractableCardView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InteractableCardView.m; sourceTree = "<group>"; };
 		CC0127971E3ACC3900B23C9F /* libInteractable.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libInteractable.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC01279A1E3ACC3900B23C9F /* InteractableViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InteractableViewManager.h; sourceTree = "<group>"; };
 		CC01279B1E3ACC3900B23C9F /* InteractableViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InteractableViewManager.m; sourceTree = "<group>"; };
@@ -115,6 +121,10 @@
 				CC85140C1E4D040000137CA9 /* InteractableSpring.m */,
 				CCA33C9B1E3B6B5000649701 /* RCTConvert+Interactable.h */,
 				CCA33C9C1E3B6B5000649701 /* RCTConvert+Interactable.m */,
+				417741EE20ADBB2C00EB2995 /* InteractableCardViewManager.h */,
+				417741EF20ADBB2C00EB2995 /* InteractableCardViewManager.m */,
+				417741F120ADBBD300EB2995 /* InteractableCardView.h */,
+				417741F220ADBBD300EB2995 /* InteractableCardView.m */,
 			);
 			path = Interactable;
 			sourceTree = "<group>";
@@ -207,6 +217,7 @@
 				CC8513D51E467EAE00137CA9 /* PhysicsGravityWellBehavior.m in Sources */,
 				CC01279C1E3ACC3900B23C9F /* InteractableViewManager.m in Sources */,
 				CC8513CF1E45D5C900137CA9 /* PhysicsSpringBehavior.m in Sources */,
+				417741F020ADBB2C00EB2995 /* InteractableCardViewManager.m in Sources */,
 				CC8513D21E45E01F00137CA9 /* PhysicsObject.m in Sources */,
 				CC85140D1E4D040000137CA9 /* InteractableSpring.m in Sources */,
 				CC85140A1E4CF66500137CA9 /* PhysicsAnchorBehavior.m in Sources */,
@@ -215,6 +226,7 @@
 				CC8513F21E47E1FC00137CA9 /* InteractableArea.m in Sources */,
 				CC8514071E4CC81400137CA9 /* PhysicsFrictionBehavior.m in Sources */,
 				CC8513CC1E45D59C00137CA9 /* PhysicsBehavior.m in Sources */,
+				417741F320ADBBD300EB2995 /* InteractableCardView.m in Sources */,
 				CC8514101E4E790800137CA9 /* PhysicsArea.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

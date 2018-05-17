@@ -1,29 +1,33 @@
 //
-//  InteractableView.m
+//  InteractableCardView.m
 //  Interactable
 //
-//  Created by Tal Kol on 1/27/17.
-//  Copyright © 2017 Wix. All rights reserved.
+//  Created by Farid Dahiri on 5/17/18.
+//  Copyright © 2018 Wix. All rights reserved.
 //
 
-#import "InteractableView.h"
+#import "InteractableCardView.h"
+#import <React/RCTComponent.h>
 #import <React/UIView+React.h>
 #import <React/RCTRootView.h>
 #import <React/RCTEventDispatcher.h>
+#import <React/RCTConvert.h>
+#import <React/RCTScrollView.h>
+#import <React/RCTUIManager.h>
 
-@interface InteractableEvent : NSObject <RCTEvent>
+@interface InteractableCardEvent : NSObject <RCTEvent>
 
 - (instancetype)initWithEventName:(NSString *)eventName
                          reactTag:(NSNumber *)reactTag
-                 interactableView:(InteractableView *)interactableView
+                 interactableCardView:(InteractableCardView *)interactableCardView
                          userData:(NSDictionary *)userData
                     coalescingKey:(uint16_t)coalescingKey NS_DESIGNATED_INITIALIZER;
 
 @end
 
-@implementation InteractableEvent
+@implementation InteractableCardEvent
 {
-    InteractableView *_interactableView;
+    InteractableCardView *_interactableCardView;
     NSDictionary *_userData;
     uint16_t _coalescingKey;
 }
@@ -33,14 +37,14 @@
 
 - (instancetype)initWithEventName:(NSString *)eventName
                          reactTag:(NSNumber *)reactTag
-                 interactableView:(InteractableView *)interactableView
+                 interactableCardView:(InteractableCardView *)interactableCardView
                          userData:(NSDictionary *)userData
                     coalescingKey:(uint16_t)coalescingKey
 {
     if ((self = [super init])) {
         _eventName = [eventName copy];
         _viewTag = reactTag;
-        _interactableView = interactableView;
+        _interactableCardView = interactableCardView;
         _userData = userData;
         _coalescingKey = coalescingKey;
     }
@@ -64,7 +68,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     return YES;
 }
 
-- (InteractableEvent *)coalesceWithEvent:(InteractableEvent *)newEvent
+- (InteractableCardEvent *)coalesceWithEvent:(InteractableCardEvent *)newEvent
 {
     newEvent->_userData = _userData;
     
@@ -83,7 +87,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 @end
 
-@interface InteractableView()
+@interface InteractableCardView() <UIScrollViewDelegate>
 @property (nonatomic, assign) BOOL originSet;
 @property (nonatomic, assign) CGPoint origin;
 @property (nonatomic) PhysicsAnimator *animator;
@@ -99,9 +103,16 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 @property (nonatomic, assign) uint16_t coalescingKey;
 @property (nonatomic, assign) NSString* lastEmittedEventName;
 
+// GETAWAY - Card Magic
+@property (nonatomic, weak) UIScrollView *hostedScrollView;
+@property (nonatomic, assign) BOOL gestureRecognizerAdded;
+@property (nonatomic, assign) BOOL prepareScrollViewGesture;
+@property (nonatomic, assign) BOOL isScrollViewSnapDismissing;
+@property (nonatomic, assign) CGFloat scrollViewStartContentOffsetY;
+
 @end
 
-@implementation InteractableView
+@implementation InteractableCardView
 
 - (instancetype)initWithBridge:(RCTBridge *)bridge
 {
@@ -118,8 +129,22 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         self.pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
         self.pan.delegate = self;
         [self addGestureRecognizer:self.pan];
+        self.gestureRecognizerAdded = NO;
     }
     return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    UIView *contentView = [self.bridge.uiManager viewForNativeID:@"CardSrollableContent" withRootTag:self.reactTag];
+    RCTScrollView *rctScrollView = (RCTScrollView *)contentView;
+    if (self.hostedScrollView != rctScrollView.scrollView) {
+        [self.hostedScrollView.panGestureRecognizer removeTarget:self action:@selector(handleScrollViewPan:)];
+        rctScrollView.scrollView.delegate = self;
+        rctScrollView.scrollView.scrollEnabled = NO;
+        [rctScrollView.scrollView.panGestureRecognizer addTarget:self action:@selector(handleScrollViewPan:)];
+        self.hostedScrollView = rctScrollView.scrollView;
+    }
 }
 
 - (void)reactSetFrame:(CGRect)frame
@@ -238,13 +263,13 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
             self.lastEmittedEventName = @"onAnimatedEvent";
         }
         
-        InteractableEvent *event = [[InteractableEvent alloc] initWithEventName:@"onAnimatedEvent"
+        InteractableCardEvent *event = [[InteractableCardEvent alloc] initWithEventName:@"onAnimatedEvent"
                                                                        reactTag:self.reactTag
-                                                               interactableView:self
+                                                               interactableCardView:self
                                                                        userData:@{ @"x": @(deltaFromOrigin.x),
                                                                                    @"y": @(deltaFromOrigin.y)}
                                                                   coalescingKey:self.coalescingKey];
-
+        
         [[self.bridge eventDispatcher] sendEvent:event];
         
         // self.onAnimatedEvent(@
@@ -294,11 +319,19 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     {
         CGPoint deltaFromOrigin = [InteractablePoint deltaBetweenPoint:self.center andOrigin:self.origin];
         self.onDrag(@{
-                        @"state": state,
-                        @"x": @(deltaFromOrigin.x),
-                        @"y": @(deltaFromOrigin.y),
-                        @"targetSnapPointId":targetSnapPointId
+                      @"state": state,
+                      @"x": @(deltaFromOrigin.x),
+                      @"y": @(deltaFromOrigin.y),
+                      @"targetSnapPointId":targetSnapPointId
                       });
+    }
+}
+
+- (void)handleScrollViewPan:(UIPanGestureRecognizer *)pan {
+    if (self.hostedScrollView.contentOffset.y == 0 && !self.isScrollViewSnapDismissing) {
+        [self handlePan:pan];
+    } else {
+        _prepareScrollViewGesture = YES;
     }
 }
 
@@ -306,15 +339,20 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (void)handlePan:(UIPanGestureRecognizer *)pan
 {
-    if (pan.state == UIGestureRecognizerStateBegan)
+    if (pan.state == UIGestureRecognizerStateBegan ||
+        (pan != self.pan && self.prepareScrollViewGesture))
     {
         [self cancelCurrentReactTouch];
         self.dragStartCenter = self.center;
         [self setTempBehaviorsForDragStart];
         [self reportDragEvent:@"start" targetSnapPointId:@""];
+        _prepareScrollViewGesture = NO;
     }
     
     CGPoint translation = [pan translationInView:self];
+    if (pan != self.pan){
+        translation.y-=self.scrollViewStartContentOffsetY;
+    }
     self.dragBehavior.anchorPoint = CGPointMake(self.dragStartCenter.x + translation.x, self.dragStartCenter.y + translation.y);
     [self.animator ensureRunning];
     
@@ -323,22 +361,38 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         pan.state == UIGestureRecognizerStateCancelled)
     {
         InteractablePoint* point = [self setTempBehaviorsForDragEnd];
+        if (pan == self.pan){
+            self.hostedScrollView.scrollEnabled = point.y == 0;
+        } else if (pan.state == UIGestureRecognizerStateEnded) {
+            self.hostedScrollView.scrollEnabled = NO;
+        }
         [self reportDragEvent:@"end" targetSnapPointId:point.id];
     }
 }
-
+// TODO:// @Farid most likely wix implementation is enough so please revert
 - (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)pan
 {
+    if (self.hostedScrollView.scrollEnabled == NO){
+        CGPoint translation = [pan translationInView:self];
+        if (self.horizontalOnly) return fabs(translation.x) > fabs(translation.y);
+        if (self.verticalOnly) return fabs(translation.y) > fabs(translation.x);
+        return YES;
+    }
     CGPoint translation = [pan translationInView:self];
-    if (self.horizontalOnly) return fabs(translation.x) > fabs(translation.y);
-    if (self.verticalOnly) return fabs(translation.y) > fabs(translation.x);
-    return YES;
+    if (translation.y > 0 && self.hostedScrollView.contentOffset.y == 0) {
+        CGPoint translation = [pan translationInView:self];
+        if (self.horizontalOnly) return fabs(translation.x) > fabs(translation.y);
+        if (self.verticalOnly) return fabs(translation.y) > fabs(translation.x);
+        return YES;
+    }
+    
+    return NO;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)pan shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)other
 {
     // return YES to allow a hosting scrollview to scroll while an interactable view is moving
-    return NO;
+    return other.view == self.hostedScrollView;
 }
 
 - (void)cancelCurrentReactTouch
@@ -410,16 +464,16 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 {
     [self.animator removeTempBehaviors];
     self.dragBehavior = nil;
-
+    
     CGPoint velocity = [self.animator getTargetVelocity:self];
     if (self.horizontalOnly) velocity.y = 0;
     if (self.verticalOnly) velocity.x = 0;
     CGFloat toss = self.dragToss;
     CGPoint projectedCenter = CGPointMake(self.center.x + toss*velocity.x, self.center.y + toss*velocity.y);
-
+    
     InteractablePoint *snapPoint = [InteractablePoint findClosestPoint:self.snapPoints toPoint:projectedCenter withOrigin:self.origin];
     if (snapPoint) [self addTempSnapToPointBehavior:snapPoint];
-
+    
     [self addTempBounceBehaviorWithBoundaries:self.boundaries];
     return snapPoint;
 }
@@ -585,6 +639,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         
         [self addTempBounceBehaviorWithBoundaries:self.boundaries];
         [self.animator ensureRunning];
+        self.hostedScrollView.scrollEnabled = snapPoint.y == 0;
     }
 }
 
@@ -601,9 +656,23 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (void)bringToFront:(NSDictionary*)params
 {
-
+    
 }
 
-@end
+#pragma mark - UIScrollViewDelegate
 
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    if (velocity.y < -2.5 && targetContentOffset->y == 0) {
+        _isScrollViewSnapDismissing = YES;
+        self.hostedScrollView.scrollEnabled = NO;
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self snapTo:@{@"index": @(0)}];
+        }];
+    }
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    self.scrollViewStartContentOffsetY = scrollView.contentOffset.y;
+    _isScrollViewSnapDismissing = NO;
+}
 
