@@ -666,7 +666,13 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         _isScrollViewSnapDismissing = YES;
         self.hostedScrollView.scrollEnabled = NO;
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self snapTo:@{@"index": @(0)}];
+            for (int i=0; i < self.snapPoints.count; i++){
+                InteractablePoint* point = self.snapPoints[i];
+                if (point.y != 0 && point.y != self.frame.size.height){
+                    [self snapTo:@{@"index": @(i)}];
+                    break;
+                }
+            }
         }];
     }
 }
