@@ -68,6 +68,25 @@ RCT_EXPORT_METHOD(bringToFront:(nonnull NSNumber *)reactTag
     
 }
 
+RCT_EXPORT_METHOD(attachScrollViewIfNeeded:(nonnull NSNumber *)reactTag
+                  params:(NSDictionary*)params)
+{
+    [self.bridge.uiManager addUIBlock:
+     ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry)
+     {
+         UIView *view = viewRegistry[reactTag];
+         if ([view isKindOfClass:[InteractableCardView class]])
+         {
+             [(InteractableCardView*)view attachScrollViewIfNeeded:params];
+         }
+         else
+         {
+             RCTLogError(@"tried to attachScrollViewIfNeeded: on non-InteractableCardView view %@ "
+                         "with tag #%@", view, reactTag);
+         }
+     }];
+}
+
 RCT_EXPORT_METHOD(snapTo:(nonnull NSNumber *)reactTag
                   params:(NSDictionary*)params)
 {
