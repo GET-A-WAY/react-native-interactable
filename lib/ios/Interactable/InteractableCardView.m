@@ -666,6 +666,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         [rctScrollView.scrollView.panGestureRecognizer addTarget:self action:@selector(handleScrollViewPan:)];
         self.hostedScrollView = rctScrollView.scrollView;
     }
+    BOOL draggableContent = [self.bridge.uiManager viewForNativeID:@"CardNotDraggableContent" withRootTag:self.reactTag] == nil;
+    self.dragEnabled = draggableContent;
 }
 
 #pragma mark - UIScrollViewDelegate
