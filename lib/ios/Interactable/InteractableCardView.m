@@ -656,6 +656,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 }
 
+- (void)scrollHostedViewToTop:(NSDictionary*)params {
+    self.hostedScrollView.contentOffset = CGPointZero;
+}
+
 - (void)attachScrollViewIfNeeded:(NSDictionary*)params {
     UIView *contentView = [self.bridge.uiManager viewForNativeID:@"CardSrollableContent" withRootTag:self.reactTag];
     RCTScrollView *rctScrollView = (RCTScrollView *)contentView;

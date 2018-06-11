@@ -87,6 +87,25 @@ RCT_EXPORT_METHOD(attachScrollViewIfNeeded:(nonnull NSNumber *)reactTag
      }];
 }
 
+RCT_EXPORT_METHOD(scrollHostedViewToTop:(nonnull NSNumber *)reactTag
+                  params:(NSDictionary*)params)
+{
+    [self.bridge.uiManager addUIBlock:
+     ^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry)
+     {
+         UIView *view = viewRegistry[reactTag];
+         if ([view isKindOfClass:[InteractableCardView class]])
+         {
+             [(InteractableCardView*)view scrollHostedViewToTop:params];
+         }
+         else
+         {
+             RCTLogError(@"tried to scrollHostedViewToTop: on non-InteractableCardView view %@ "
+                         "with tag #%@", view, reactTag);
+         }
+     }];
+}
+
 RCT_EXPORT_METHOD(snapTo:(nonnull NSNumber *)reactTag
                   params:(NSDictionary*)params)
 {

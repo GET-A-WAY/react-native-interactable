@@ -42,6 +42,7 @@
 - (void)changePosition:(NSDictionary*)params;
 - (void)bringToFront:(NSDictionary*)params;
 
+- (void)scrollHostedViewToTop:(NSDictionary*)params;
 - (void)attachScrollViewIfNeeded:(NSDictionary*)params;
 
 @end
