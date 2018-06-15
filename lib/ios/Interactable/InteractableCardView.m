@@ -359,7 +359,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     {
         InteractablePoint* point = [self setTempBehaviorsForDragEnd];
         if (pan == self.pan){
-            self.hostedScrollView.scrollEnabled = point.y == (self.isIPhone() ? 20 : 0);
+            self.hostedScrollView.scrollEnabled = point.y == ([self isIPhoneX] ? 20 : 0);
         } else if (pan.state == UIGestureRecognizerStateEnded) {
             self.hostedScrollView.scrollEnabled = NO;
         }
@@ -636,7 +636,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
         [self addTempBounceBehaviorWithBoundaries:self.boundaries];
         [self.animator ensureRunning];
-        self.hostedScrollView.scrollEnabled = snapPoint.y == (self.isIPhone() ? 20 : 0);
+        self.hostedScrollView.scrollEnabled = snapPoint.y == ([self isIPhoneX] ? 20 : 0);
     }
 }
 
@@ -697,8 +697,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     _isScrollViewSnapDismissing = NO;
 }
 
-- (BOOL)isIPhoneX() {
-    return [UIScreen mainScreen].bounds.size.height == 2436;
+- (BOOL)isIPhoneX {
+    return [UIScreen mainScreen].nativeBounds.size.height == 2436;
 }
 
 @end
