@@ -683,7 +683,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             for (int i=0; i < self.snapPoints.count; i++){
                 InteractablePoint* point = self.snapPoints[i];
-                if (point.y != 0 && point.y != self.frame.size.height){
+                // iphoneX top snap point at 20
+                // normal devices at 0
+                // bottom snapPoint at device Height
+                if (point.y != 0 && point.y != 20 && point.y != self.frame.size.height){
                     [self snapTo:@{@"index": @(i)}];
                     break;
                 }
