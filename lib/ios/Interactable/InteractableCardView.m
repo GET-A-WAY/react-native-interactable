@@ -516,6 +516,13 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     PhysicsFrictionBehavior *frictionBehavior = [[PhysicsFrictionBehavior alloc] initWithTarget:self];
     frictionBehavior.friction = damping;
     [self.animator addTempBehavior:frictionBehavior];
+    
+    if (self.onWillSnap && snapPoint) {
+        self.onWillSnap(@{
+                          @"index": @([self.snapPoints indexOfObject:snapPoint]),
+                          @"id": snapPoint.id
+                          });
+    }
 }
 
 - (void)addTempBounceBehaviorWithBoundaries:(InteractableArea*)boundaries
