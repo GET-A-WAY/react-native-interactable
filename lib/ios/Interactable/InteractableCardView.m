@@ -518,10 +518,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     [self.animator addTempBehavior:frictionBehavior];
     
     if (self.onWillSnap && snapPoint) {
-        self.onWillSnap(@{
-                          @"index": @([self.snapPoints indexOfObject:snapPoint]),
-                          @"id": snapPoint.id
-                          });
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.35 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            self.onWillSnap(@{
+                              @"index": @([self.snapPoints indexOfObject:snapPoint]),
+                              @"id": snapPoint.id
+                              });
+        });
     }
 }
 
