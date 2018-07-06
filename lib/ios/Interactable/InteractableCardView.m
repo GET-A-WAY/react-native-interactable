@@ -137,6 +137,15 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 - (void)layoutSubviews {
     [super layoutSubviews];
     [self attachScrollViewIfNeeded:@{}];
+    
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:self.bounds
+                                               byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
+                                                     cornerRadii:CGSizeMake(10, 10)];
+    
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    
+    maskLayer.path = path.CGPath;
+    self.layer.mask = maskLayer;
 }
 
 - (void)reactSetFrame:(CGRect)frame
