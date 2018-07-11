@@ -650,10 +650,14 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     NSInteger index = [[params objectForKey:@"index"] integerValue];
     if (self.snapPoints && index >= 0 && index < [self.snapPoints count])
     {
+
+        InteractablePoint *snapPoint = [self.snapPoints objectAtIndex:index];
+        // we're already snapped
+        if (self.frame.origin.y == snapPoint.y) return;
+
         [self.animator removeTempBehaviors];
         self.dragBehavior = nil;
 
-        InteractablePoint *snapPoint = [self.snapPoints objectAtIndex:index];
         if (snapPoint) [self addTempSnapToPointBehavior:snapPoint];
 
         [self addTempBounceBehaviorWithBoundaries:self.boundaries];
