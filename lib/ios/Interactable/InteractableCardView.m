@@ -197,8 +197,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     }
 
     [super setCenter:center];
-    [self reportAnimatedEvent];
-    [self reportAlertEvent];
+    if (CGSizeEqualToSize(self.frame.size, CGSizeZero) == NO)
+    {
+        [self reportAnimatedEvent];
+        [self reportAlertEvent];
+    }
 }
 
 - (void)setDragEnabled:(BOOL)dragEnabled
