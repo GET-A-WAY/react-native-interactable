@@ -71,7 +71,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 - (InteractableCardEvent *)coalesceWithEvent:(InteractableCardEvent *)newEvent
 {
     newEvent->_userData = _userData;
-    
+
     return newEvent;
 }
 
@@ -124,7 +124,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         self.insideAlertAreas = [NSMutableSet set];
         self.dragEnabled = YES;
         self.bridge = bridge;
-        
+
         // pan gesture recognizer for touches
         self.pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
         self.pan.delegate = self;
@@ -137,13 +137,13 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 - (void)layoutSubviews {
     [super layoutSubviews];
     [self attachScrollViewIfNeeded:@{}];
-    
+
     UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:self.bounds
                                                byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
                                                      cornerRadii:CGSizeMake(10, 10)];
-    
+
     CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
-    
+
     maskLayer.path = path.CGPath;
     self.layer.mask = maskLayer;
 }
@@ -348,6 +348,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (void)handlePan:(UIPanGestureRecognizer *)pan
 {
+    CGPoint translation = [pan translationInView:self];
+
+    // if we're going up and we're full screen don't handle
+    if (translation.y < 0 && self.frame.origin.y == ([self isIPhoneX] ? 20 : 0)) return;
+
     if (pan.state == UIGestureRecognizerStateBegan ||
         (pan != self.pan && self.prepareScrollViewGesture))
     {
@@ -358,7 +363,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         _prepareScrollViewGesture = NO;
     }
 
-    CGPoint translation = [pan translationInView:self];
     if (pan != self.pan){
         translation.y-=self.scrollViewStartContentOffsetY;
     }
@@ -528,7 +532,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     PhysicsFrictionBehavior *frictionBehavior = [[PhysicsFrictionBehavior alloc] initWithTarget:self];
     frictionBehavior.friction = damping;
     [self.animator addTempBehavior:frictionBehavior];
-    
+
     if (self.onWillSnap && snapPoint) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.35 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             self.onWillSnap(@{
@@ -649,10 +653,14 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     NSInteger index = [[params objectForKey:@"index"] integerValue];
     if (self.snapPoints && index >= 0 && index < [self.snapPoints count])
     {
+
+        InteractablePoint *snapPoint = [self.snapPoints objectAtIndex:index];
+        // we're already snapped
+        if (self.frame.origin.y == snapPoint.y) return;
+
         [self.animator removeTempBehaviors];
         self.dragBehavior = nil;
 
-        InteractablePoint *snapPoint = [self.snapPoints objectAtIndex:index];
         if (snapPoint) [self addTempSnapToPointBehavior:snapPoint];
 
         [self addTempBounceBehaviorWithBoundaries:self.boundaries];
@@ -690,6 +698,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         rctScrollView.scrollView.scrollEnabled = NO;
         [rctScrollView.scrollView.panGestureRecognizer addTarget:self action:@selector(handleScrollViewPan:)];
         self.hostedScrollView = rctScrollView.scrollView;
+        self.hostedScrollView.scrollEnabled = self.frame.origin.y == ([self isIPhoneX] ? 20 : 0);
     }
     BOOL draggableContent = [self.bridge.uiManager viewForNativeID:@"CardNotDraggableContent" withRootTag:self.reactTag] == nil;
     self.dragEnabled = draggableContent;
