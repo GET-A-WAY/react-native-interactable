@@ -189,7 +189,9 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
             if (center.y - self.origin.y > self.boundaries.bottom) center.y = self.boundaries.bottom + self.origin.y;
         }
     }
-
+    if (center.y < (self.frame.size.height/2 + self.topY)){
+        center.y = self.frame.size.height/2 + self.topY;
+    }
     [super setCenter:center];
     if (CGSizeEqualToSize(self.frame.size, CGSizeZero) == NO)
     {
