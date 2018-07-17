@@ -109,6 +109,8 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 @property (nonatomic, assign) BOOL prepareScrollViewGesture;
 @property (nonatomic, assign) BOOL isScrollViewSnapDismissing;
 @property (nonatomic, assign) CGFloat scrollViewStartContentOffsetY;
+@property (nonatomic, assign) CGFloat topY;
+@property (nonatomic, assign) CGPoint lastTranslationInWindow;
 
 @end
 
@@ -118,6 +120,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 {
     if ((self = [super init]))
     {
+        self.topY = [self isIPhoneX] ? 20 : 0;
         self.originSet = NO;
         self.initialPositionSet = NO;
         self.reactRelayoutHappening = NO;
@@ -339,11 +342,33 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (void)handlePan:(UIPanGestureRecognizer *)pan
 {
-    CGPoint translation = [pan translationInView:self];
-
-    // if we're going up and we're full screen don't handle
-    if (translation.y < 0 && self.frame.origin.y == ([self isIPhoneX] ? 20 : 0)) return;
-
+    UIView* window = [UIApplication sharedApplication].delegate.window;
+    CGPoint translationInWindow = [pan translationInView:window];
+    CGFloat translationDelta =  (self.lastTranslationInWindow.y - translationInWindow.y);
+    
+    if (self.hostedScrollView.contentSize.height > self.frame.size.height){
+        // if we're going up and we're full screen don't handle
+        if (pan == self.pan && translationDelta > 0 && self.frame.origin.y <= self.topY){
+            CGFloat contentOffsetY = self.hostedScrollView.contentOffset.y + translationDelta;
+            if (contentOffsetY < self.hostedScrollView.contentSize.height){
+                self.hostedScrollView.contentOffset = CGPointMake(0, contentOffsetY);
+            }
+            self.hostedScrollView.scrollEnabled = true;
+            [self.animator stopRunning];
+            self.lastTranslationInWindow = translationInWindow;
+            return;
+        } else if (pan == self.pan && translationDelta < 0 && self.hostedScrollView.contentOffset.y > 0){
+            CGFloat contentOffsetY = self.hostedScrollView.contentOffset.y + translationDelta;
+            contentOffsetY = contentOffsetY < 0 ? 0 : contentOffsetY;
+            self.hostedScrollView.contentOffset = CGPointMake(0, contentOffsetY);
+            if (contentOffsetY == 0){
+                self.hostedScrollView.scrollEnabled = false;
+            }
+            [self.animator stopRunning];
+            self.lastTranslationInWindow = translationInWindow;
+        }
+    }
+    self.lastTranslationInWindow = translationInWindow;
     if (pan.state == UIGestureRecognizerStateBegan ||
         (pan != self.pan && self.prepareScrollViewGesture))
     {
@@ -353,7 +378,9 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         [self reportDragEvent:@"start" targetSnapPointId:@""];
         _prepareScrollViewGesture = NO;
     }
-
+    
+    CGPoint translation = [pan translationInView:self];
+    
     if (pan != self.pan){
         translation.y-=self.scrollViewStartContentOffsetY;
     }
@@ -366,7 +393,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     {
         InteractablePoint* point = [self setTempBehaviorsForDragEnd];
         if (pan == self.pan){
-            self.hostedScrollView.scrollEnabled = point.y == ([self isIPhoneX] ? 20 : 0);
+            self.hostedScrollView.scrollEnabled = point.y == self.topY;
         } else if (pan.state == UIGestureRecognizerStateEnded) {
             self.hostedScrollView.scrollEnabled = NO;
         }
@@ -656,7 +683,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
         [self addTempBounceBehaviorWithBoundaries:self.boundaries];
         [self.animator ensureRunning];
-        self.hostedScrollView.scrollEnabled = snapPoint.y == ([self isIPhoneX] ? 20 : 0);
+        self.hostedScrollView.scrollEnabled = snapPoint.y == self.topY;
     }
 }
 
@@ -689,7 +716,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         rctScrollView.scrollView.scrollEnabled = NO;
         [rctScrollView.scrollView.panGestureRecognizer addTarget:self action:@selector(handleScrollViewPan:)];
         self.hostedScrollView = rctScrollView.scrollView;
-        self.hostedScrollView.scrollEnabled = self.frame.origin.y == ([self isIPhoneX] ? 20 : 0);
+        self.hostedScrollView.scrollEnabled = self.frame.origin.y == self.topY;
     }
     BOOL draggableContent = [self.bridge.uiManager viewForNativeID:@"CardNotDraggableContent" withRootTag:self.reactTag] == nil;
     self.dragEnabled = draggableContent;
@@ -720,7 +747,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     self.scrollViewStartContentOffsetY = scrollView.contentOffset.y;
     _isScrollViewSnapDismissing = NO;
 }
-
+- (void) scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if (self.frame.origin.y > self.topY && scrollView.contentOffset.y > 0){
+        scrollView.contentOffset = CGPointZero;
+    }
+}
 - (BOOL)isIPhoneX {
     return [UIScreen mainScreen].nativeBounds.size.height == 2436;
 }
