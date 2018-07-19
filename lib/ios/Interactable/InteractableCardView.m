@@ -351,9 +351,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     if (self.hostedScrollView.contentSize.height > self.frame.size.height){
         // if we're going up and we're full screen don't handle
         if (pan == self.pan && translationDelta > 0 && self.frame.origin.y <= self.topY){
-            CGFloat contentOffsetY = self.hostedScrollView.contentOffset.y + translationDelta;
-            if (contentOffsetY < self.hostedScrollView.contentSize.height){
-                self.hostedScrollView.contentOffset = CGPointMake(0, contentOffsetY);
+            if (self.frame.origin.y > 100){
+                CGFloat contentOffsetY = self.hostedScrollView.contentOffset.y + translationDelta;
+                if (contentOffsetY < self.hostedScrollView.contentSize.height){
+                    self.hostedScrollView.contentOffset = CGPointMake(0, contentOffsetY);
+                }
             }
             self.hostedScrollView.scrollEnabled = true;
             [self.animator stopRunning];
@@ -749,12 +751,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     self.scrollViewStartContentOffsetY = scrollView.contentOffset.y;
     _isScrollViewSnapDismissing = NO;
 }
-- (void) scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    if (self.frame.origin.y > self.topY && scrollView.contentOffset.y > 0){
-        scrollView.contentOffset = CGPointZero;
-    }
-}
+
 - (BOOL)isIPhoneX {
     return [UIScreen mainScreen].nativeBounds.size.height == 2436;
 }
