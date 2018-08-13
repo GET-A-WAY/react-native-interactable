@@ -672,22 +672,22 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (void)snapTo:(NSDictionary*)params
 {
-    NSInteger index = [[params objectForKey:@"index"] integerValue];
-    if (self.snapPoints && index >= 0 && index < [self.snapPoints count])
-    {
-
-        InteractablePoint *snapPoint = [self.snapPoints objectAtIndex:index];
-        // we're already snapped
-        if (self.frame.origin.y == snapPoint.y) return;
-
-        [self.animator removeTempBehaviors];
-        self.dragBehavior = nil;
-
-        if (snapPoint) [self addTempSnapToPointBehavior:snapPoint];
-
-        [self addTempBounceBehaviorWithBoundaries:self.boundaries];
-        [self.animator ensureRunning];
-        self.hostedScrollView.scrollEnabled = snapPoint.y == self.topY;
+    NSString* pointId = [params objectForKey:@"id"];
+    for (InteractablePoint* snapPoint in self.snapPoints){
+        if ([[snapPoint id] isEqualToString:pointId]){
+            // we're already snapped
+            if (self.frame.origin.y == snapPoint.y) return;
+            
+            [self.animator removeTempBehaviors];
+            self.dragBehavior = nil;
+            
+            if (snapPoint) [self addTempSnapToPointBehavior:snapPoint];
+            
+            [self addTempBounceBehaviorWithBoundaries:self.boundaries];
+            [self.animator ensureRunning];
+            self.hostedScrollView.scrollEnabled = snapPoint.y == self.topY;
+            break;
+        }
     }
 }
 
