@@ -524,15 +524,18 @@ public class InteractableCardView extends ViewGroup implements PhysicsAnimator.P
         handleEndOfDrag();
     }
 
-    public void snapTo(int index) {
-
-        if(this.snapPoints!=null && index >= 0 && index < this.snapPoints.size())
-        {
-            this.animator.removeTempBehaviors();
-            this.dragBehavior = null;
-            InteractablePoint snapPoint = snapPoints.get(index);
-            addTempSnapToPointBehavior(snapPoint);
-            addTempBounceBehaviorWithBoundaries(this.boundaries);
+    public void snapTo(String id) {
+        if (this.snapPoints != null) {
+            for (InteractablePoint snapPoint : this.snapPoints) {
+                if (snapPoint.id.equals(id)) {
+                    this.animator.removeTempBehaviors();
+                    this.dragBehavior = null;
+                    InteractablePoint snapPoint = snapPoints.get(index);
+                    addTempSnapToPointBehavior(snapPoint);
+                    addTempBounceBehaviorWithBoundaries(this.boundaries);
+                    break;
+                }
+            }
         }
     }
 
