@@ -530,7 +530,6 @@ public class InteractableCardView extends ViewGroup implements PhysicsAnimator.P
                 if (snapPoint.id.equals(id)) {
                     this.animator.removeTempBehaviors();
                     this.dragBehavior = null;
-                    InteractablePoint snapPoint = snapPoints.get(index);
                     addTempSnapToPointBehavior(snapPoint);
                     addTempBounceBehaviorWithBoundaries(this.boundaries);
                     break;

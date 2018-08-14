@@ -57,7 +57,7 @@ public class InteractableCardViewManager extends ViewGroupManager<InteractableCa
                 return;
             }
             case COMMAND_SNAP_TO: {
-                int snapPoint = args.getMap(0).getString("id");
+                String snapPoint = args.getMap(0).getString("id");
                 view.snapTo(snapPoint);
                 return;
             }
