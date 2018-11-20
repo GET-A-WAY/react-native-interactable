@@ -34,6 +34,29 @@ public class Events {
         }
     }
 
+    public static class OnWillSnapEvent extends Event<OnSnapEvent> {
+
+        WritableMap eventData;
+
+        public OnWillSnapEvent(int viewTag, int indexOfSnapPoint, String snapPointId) {
+            super(viewTag);
+            eventData = Arguments.createMap();
+            eventData.putInt("index",indexOfSnapPoint);
+            eventData.putString("id", snapPointId);
+        }
+
+        @Override
+        public String getEventName() {
+            return "onWillSnap";
+        }
+
+        @Override
+        public void dispatch(RCTEventEmitter rctEventEmitter) {
+            rctEventEmitter.receiveEvent(getViewTag(), getEventName(), eventData);
+        }
+    }
+
+
     public static class OnAnimatedEvent extends Event<OnAnimatedEvent> {
 
         WritableMap eventData;

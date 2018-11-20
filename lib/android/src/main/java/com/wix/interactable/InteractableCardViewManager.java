@@ -158,6 +158,7 @@ public class InteractableCardViewManager extends ViewGroupManager<InteractableCa
     public Map<String, Object> getExportedCustomDirectEventTypeConstants() {
         return MapBuilder.<String, Object>builder()
                 .put("onSnap", MapBuilder.of("registrationName", "onSnap"))
+                .put("onWillSnap", MapBuilder.of("registrationName", "onWillSnap"))
                 .put("onAlert", MapBuilder.of("registrationName", "onAlert"))
                 .put("onAnimatedEvent", MapBuilder.of("registrationName", "onAnimatedEvent"))
                 .put("onDrag", MapBuilder.of("registrationName", "onDrag"))
@@ -172,6 +173,11 @@ public class InteractableCardViewManager extends ViewGroupManager<InteractableCa
         public InteractionEventEmitter(InteractableCardView view, EventDispatcher eventDispatcher) {
             this.InteractableCardView = view;
             this.eventDispatcher = eventDispatcher;
+        }
+
+        @Override
+        public void onWillSnap(int indexOfSnapPoint, String snapPointId) {
+            eventDispatcher.dispatchEvent(new Events.OnWillSnapEvent(InteractableCardView.getId(), indexOfSnapPoint, snapPointId));
         }
 
         @Override

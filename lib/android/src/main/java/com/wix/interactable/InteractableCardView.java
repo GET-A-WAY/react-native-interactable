@@ -332,6 +332,8 @@ public class InteractableCardView extends ViewGroup implements PhysicsAnimator.P
         this.animator.addTempBehavior(frictionBehavior);
         //TODO - continue here!
 
+        listener.onWillSnap(snapPoints.indexOf(snapPoint), snapPoint.id);
+        }
     }
 
     private void addTempBounceBehaviorWithBoundaries(InteractableArea boundaries) {
@@ -548,6 +550,7 @@ public class InteractableCardView extends ViewGroup implements PhysicsAnimator.P
 
     public interface InteractionListener {
         void onSnap(int indexOfSnapPoint, String snapPointId);
+        void onWillSnap(int indexOfSnapPoint, String snapPointId);
         void onAlert(String alertAreaId, String alertType);
         void onAnimatedEvent(float x, float y);
         void onDrag(String state, float x, float y, String targetSnapPointId);
