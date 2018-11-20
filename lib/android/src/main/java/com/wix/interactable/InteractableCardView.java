@@ -333,7 +333,6 @@ public class InteractableCardView extends ViewGroup implements PhysicsAnimator.P
         //TODO - continue here!
 
         listener.onWillSnap(snapPoints.indexOf(snapPoint), snapPoint.id);
-        }
     }
 
     private void addTempBounceBehaviorWithBoundaries(InteractableArea boundaries) {
