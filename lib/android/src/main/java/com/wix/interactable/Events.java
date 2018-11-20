@@ -34,7 +34,7 @@ public class Events {
         }
     }
 
-    public static class OnWillSnapEvent extends Event<OnSnapEvent> {
+    public static class OnWillSnapEvent extends Event<OnWillSnapEvent> {
 
         WritableMap eventData;
 
