@@ -45,6 +45,7 @@ public class InteractableCardView extends ViewGroup implements PhysicsAnimator.P
     private PointF initialPosition;
 
     private InteractableArea boundaries;
+    private PhysicsBounceBehavior oldBoundariesBehavior;
     private InteractableSpring dragWithSprings;
     private float dragToss;
     private PointF velocity;
@@ -369,6 +370,7 @@ public class InteractableCardView extends ViewGroup implements PhysicsAnimator.P
             PhysicsBounceBehavior bounceBehavior = new PhysicsBounceBehavior(this,minPoint, maxPoint,0, boundaries.isHaptic());
 
             this.animator.addBehavior(bounceBehavior);
+            this.oldBoundariesBehavior = bounceBehavior;
         }
     }
 
@@ -470,6 +472,7 @@ public class InteractableCardView extends ViewGroup implements PhysicsAnimator.P
 
     public void setBoundaries(InteractableArea boundaries) {
         this.boundaries = boundaries;
+        animator.removeBehavior(this.oldBoundariesBehavior);
         addConstantBoundaries(boundaries);
     }
 
