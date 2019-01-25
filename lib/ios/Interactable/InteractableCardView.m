@@ -109,7 +109,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 @property (nonatomic, assign) BOOL prepareScrollViewGesture;
 @property (nonatomic, assign) BOOL isScrollViewSnapDismissing;
 @property (nonatomic, assign) CGFloat scrollViewStartContentOffsetY;
-@property (nonatomic, assign) CGFloat topY;
+@property (nonatomic, assign, readonly) CGFloat topY;
 @property (nonatomic, assign) CGPoint lastTranslationInWindow;
 
 @end
@@ -120,7 +120,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 {
     if ((self = [super init]))
     {
-        self.topY = [self isIPhoneX] ? 20 : 0;
         self.originSet = NO;
         self.initialPositionSet = NO;
         self.reactRelayoutHappening = NO;
@@ -513,6 +512,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     return snapPoint;
 }
 
+#pragma mark - Getters
+
+- (CGFloat)topY {
+    return ([self isIPhoneX] || [self isIPhoneXSMax] || [self isIPhoneXR]) ? 20 : 0;
+}
+
 // MARK: - Behaviors
 
 - (PhysicsBehavior*)addTempDragBehavior:(InteractableSpring*)spring
@@ -754,6 +759,14 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (BOOL)isIPhoneX {
     return [UIScreen mainScreen].nativeBounds.size.height == 2436;
+}
+
+- (BOOL)isIPhoneXSMax {
+    return [UIScreen mainScreen].nativeBounds.size.height == 2688;
+}
+
+- (BOOL)isIPhoneXR {
+    return [UIScreen mainScreen].nativeBounds.size.height == 1792;
 }
 
 @end
