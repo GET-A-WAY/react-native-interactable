@@ -515,7 +515,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 #pragma mark - Getters
 
 - (CGFloat)topY {
-    return ([self isIPhoneX] || [self isIPhoneXSMax] || [self isIPhoneXR]) ? 20 : 0;
+    return (self.window.safeAreaInsets.top > 20) ? 20 : 0;
 }
 
 // MARK: - Behaviors
@@ -755,18 +755,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     self.scrollViewStartContentOffsetY = scrollView.contentOffset.y;
     _isScrollViewSnapDismissing = NO;
-}
-
-- (BOOL)isIPhoneX {
-    return [UIScreen mainScreen].nativeBounds.size.height == 2436;
-}
-
-- (BOOL)isIPhoneXSMax {
-    return [UIScreen mainScreen].nativeBounds.size.height == 2688;
-}
-
-- (BOOL)isIPhoneXR {
-    return [UIScreen mainScreen].nativeBounds.size.height == 1792;
 }
 
 @end
