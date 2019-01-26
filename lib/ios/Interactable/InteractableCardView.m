@@ -346,7 +346,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
     UIView* window = [UIApplication sharedApplication].delegate.window;
     CGPoint translationInWindow = [pan translationInView:window];
     CGFloat translationDelta =  (self.lastTranslationInWindow.y - translationInWindow.y);
-    
+
     if (self.hostedScrollView.contentSize.height > self.frame.size.height){
         // if we're going up and we're full screen don't handle
         if (pan == self.pan && translationDelta > 0 && self.frame.origin.y <= self.topY){
@@ -381,9 +381,9 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         [self reportDragEvent:@"start" targetSnapPointId:@""];
         _prepareScrollViewGesture = NO;
     }
-    
+
     CGPoint translation = [pan translationInView:self];
-    
+
     if (pan != self.pan){
         translation.y-=self.scrollViewStartContentOffsetY;
     }
@@ -515,7 +515,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 #pragma mark - Getters
 
 - (CGFloat)topY {
-    return (self.window.safeAreaInsets.top > 20) ? 20 : 0;
+    if ([self.window respondsToSelector:@selector(safeAreaInsets)]){
+        return (self.window.safeAreaInsets.top > 20) ? 20 : 0;
+    }
+    return 0;
 }
 
 // MARK: - Behaviors
@@ -682,12 +685,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         if ([[snapPoint id] isEqualToString:pointId]){
             // we're already snapped
             if (self.frame.origin.y == snapPoint.y) return;
-            
+
             [self.animator removeTempBehaviors];
             self.dragBehavior = nil;
-            
+
             if (snapPoint) [self addTempSnapToPointBehavior:snapPoint];
-            
+
             [self addTempBounceBehaviorWithBoundaries:self.boundaries];
             [self.animator ensureRunning];
             self.hostedScrollView.scrollEnabled = snapPoint.y == self.topY;
